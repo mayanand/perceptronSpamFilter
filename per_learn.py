@@ -8,25 +8,13 @@ import random
 
 class Learn(object):
     def __init__(self):
-        self.fname = ""
-        self.vocabList = []
-        self.spamTrainingCount = 0  # contains total spam training data
-        self.hamTrainingCount = 0  # contans total ham training data
-        self.totalTrainingCount = 0
-        self.spamWordCount = {}
-        self.hamWordCount = {}
-        self.spamFiles = []
-        self.hamFiles = []
-        self.spamWordList = []
-        self.hamWordList = []
-        self.proDict = {'word': {},
-                        'spam': 0,
-                        'ham': 0
-                        }
+        self.fname = ""     #path to training data
+        self.spamFiles = [] #list of all spam files in training data
+        self.hamFiles = []  #list of all ham files in training data
         self.allFiles = []  # list of tuples containing spam and ham info
-        self.weightDict = defaultdict(lambda:0) #contains the weight of
-        self.maxIter = 30
-        self.bias = 0
+        self.weightDict = defaultdict(lambda:0) #contains the weight of every dict with default wt as zero
+        self.maxIter = 30   #maximum number of iterations on training for weights
+        self.bias = 0       #bias of the training data
 
     def getData(self):
         """
@@ -42,9 +30,6 @@ class Learn(object):
             with open(sFile, "r", encoding="latin1") as f:
                 wordlist = f.read().split()
                 self.allFiles.append((1, wordlist))
-                self.spamWordList.extend(wordlist)
-
-        self.vocabList.extend(self.spamWordList)
 
         for root, dirnames, filenames in os.walk(self.fname):
             if "ham" in dirnames:
@@ -54,56 +39,21 @@ class Learn(object):
         for hFile in self.hamFiles:
             with open(hFile, "r", encoding="latin1") as f:
                 wordlist = f.read().split()
-                self.allFiles.append((1, wordlist))
-                self.hamWordList.extend(wordlist)
+                self.allFiles.append((-1, wordlist))
 
-        self.vocabList.extend(self.hamWordList)
-
-        self.vocabList = list(set(self.vocabList))
-
-        print(self.allFiles)
+        # print(self.allFiles)
 
         return
 
-    def find_token_probability(self):
-
-        self.spamWordCount = Counter(self.spamWordList)
-        self.hamWordCount = Counter(self.hamWordList)
-
-        self.spamTrainingCount = len(self.spamFiles)
-        self.hamTrainingCount = len(self.hamFiles)
-
-        self.totalTrainingCount = self.spamTrainingCount + self.hamTrainingCount
-
-        self.proDict = {'word': {},
-                        'spam': 0,
-                        'ham': 0
-                        }
-
-        distinctWordLen = len(self.vocabList)
-        for word in self.vocabList:
-            self.proDict['word'][word] = (((self.spamWordCount[word] + 1) / (len(self.spamWordList) + distinctWordLen)), \
-                                          ((self.hamWordCount[word] + 1) / (len(self.hamWordList) + distinctWordLen)))
-
-        self.proDict['spam'] = self.spamTrainingCount / self.totalTrainingCount
-        self.proDict['ham'] = self.hamTrainingCount / self.totalTrainingCount
-
-        try:
-            with open('nbmodel.txt', 'w') as f:
-                f.write(str(self.proDict))
-        except:
-            print("something went wrong with FIL IO")
-            exit(1)
-
-        # print self.spamWordCount
-        # print self.hamWordCount
-        # print self.wordSpamProbDict
-        return
 
     def trainPerceptrons(self):
+        """
+        function to train the weights of given data for perceptrons
+        :return: nothing but sets up the weight and bias of the training data
+        """
 
         for i in range(1, self.maxIter):
-            random.shuffle(self.allFiles)
+            random.shuffle(self.allFiles)       #shuffling the order of data
 
             for sample in self.allFiles:
                 y , wordlist = sample
@@ -119,7 +69,7 @@ class Learn(object):
                         self.weightDict[word] += y
                         self.bias += y
 
-        result = {'bias': self.bias, 'weight': self.weightDict}
+        result = {'bias': self.bias, 'weight': dict(self.weightDict)}
 
         try:
             with open('per_model.txt', 'w') as f:
@@ -141,6 +91,5 @@ if __name__ == "__main__":
     learn_obj.fname = dataPath
     learn_obj.getData()
     learn_obj.trainPerceptrons()
-    # learn_obj.find_token_probability()
 
     exit(0)

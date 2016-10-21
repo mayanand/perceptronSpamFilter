@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys, pprint, functools, os, glob
+from collections import defaultdict
 from math import log
 
 class perclassify(object):
@@ -10,6 +11,8 @@ class perclassify(object):
     """
     def __init__(self):
         self.permod_dict = {}
+        self.wtDefDict = {}
+        self.bias = 0
         self.hamTP = 0
         self.hamTN = 0
         self.hamFP = 0
@@ -20,6 +23,11 @@ class perclassify(object):
         self.spamFN = 0
 
     def classify(self, file, outputHandle):
+        """
+        :param file: file path of the email to be classified
+        :param outputHandle: the file handle of output file
+        :return: returns nothing but gives the output the th file handle provided
+        """
 
         words = []
         with open(file, "r", encoding="latin1") as f:
@@ -27,53 +35,31 @@ class perclassify(object):
 
         alpha = 0
         for x in words:
-            alpha += self.permod_dict['weight'][x]
+            alpha += self.wtDefDict[x]
 
-        alpha += self.permod_dict['bias']
+        alpha += self.bias
+
+        # print("classifying now")
 
         if alpha > 0:
+            if 'spam' in file:
+                self.spamTP += 1
+                self.hamTN += 1
+            else:
+                self.spamFP += 1
+                self.hamFN += 1
             outputHandle.write(str("SPAM " + file + "\n"))
+
         else:
+            if 'ham' in file:
+                self.hamTP += 1
+                self.spamTN += 1
+            else:
+                self.hamFP += 1
+                self.spamFN += 1
             outputHandle.write(str("HAM " + file + "\n"))
 
-
-
-        # wordSpam = []
-        # for x in words:
-        #     if x in self.nbmod_dict['word']:
-        #         wordSpam.append(self.nbmod_dict['word'][x][0])
-        #
-        # logSpam = list(map(log, wordSpam))
-        # spamProb = functools.reduce(lambda x, y: x + y, logSpam) + log(self.nbmod_dict['spam'])
-        #
-        # wordHam = []
-        # for x in words:
-        #     if x in self.nbmod_dict['word']:
-        #         wordHam.append(self.nbmod_dict['word'][x][1])
-        #
-        # logHam = list(map(log, wordHam))
-        # hamProb = functools.reduce(lambda x, y: x + y, logHam) + log(self.nbmod_dict['ham'])
-        #
-        # if hamProb > spamProb:
-        #     if 'ham' in file:
-        #         self.hamTP += 1
-        #         self.spamTN += 1
-        #     else:
-        #         self.hamFP += 1
-        #         self.spamFN += 1
-        #     outputHandle.write(str("HAM " + file + "\n"))
-        # else:
-        #     if 'spam' in file:
-        #         self.spamTP += 1
-        #         self.hamTN += 1
-        #     else:
-        #         self.spamFP += 1
-        #         self.hamFN += 1
-        #
-        #     outputHandle.write(str("SPAM " + file + "\n"))
-
         return
-
 
 if __name__ == "__main__":
     if (len(sys.argv)) != 3:
@@ -83,18 +69,23 @@ if __name__ == "__main__":
     dataPath = sys.argv[1]
     outputFile = sys.argv[2]
 
-    # print("The file name is: ", dataPath)
+    print("The file name is: ", dataPath)
+    print("the output filename is: ", outputFile)
 
-    nbmodel = {}
+    print("lets do eval now")
 
     with open("per_model.txt",'r') as f:
         permodel = eval(f.read())
 
-    # pprint.pprint(nbmodel)
+    # permodel = {}
+
+
+    # pprint.pprint(permodel)
 
     perclassify_obj = perclassify()
     perclassify_obj.permod_dict = permodel
-
+    perclassify_obj.wtDefDict = defaultdict(lambda:0, permodel['weight'])
+    perclassify_obj.bias = permodel['bias']
     devFiles = []
 
     for root, dirnames, filenames in os.walk(dataPath):
@@ -102,11 +93,15 @@ if __name__ == "__main__":
             if file.endswith(".txt"):
                 devFiles.append(os.path.join(root, file))
 
+    print("found all the files")
+
     try:
         outputHandle = open(outputFile, 'w')
     except:
         print("issue with file io")
 
+
+    print("on to classification now")
     for file in devFiles:
         perclassify_obj.classify(file, outputHandle)
 
