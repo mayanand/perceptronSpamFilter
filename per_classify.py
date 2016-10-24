@@ -69,10 +69,10 @@ if __name__ == "__main__":
     dataPath = sys.argv[1]
     outputFile = sys.argv[2]
 
-    print("The file name is: ", dataPath)
-    print("the output filename is: ", outputFile)
-
-    print("lets do eval now")
+    # print("The file name is: ", dataPath)
+    # print("the output filename is: ", outputFile)
+    #
+    # print("lets do eval now")
 
     with open("per_model.txt",'r') as f:
         permodel = eval(f.read())
@@ -93,7 +93,7 @@ if __name__ == "__main__":
             if file.endswith(".txt"):
                 devFiles.append(os.path.join(root, file))
 
-    print("found all the files")
+    # print("found all the files")
 
     try:
         outputHandle = open(outputFile, 'w')
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         print("issue with file io")
 
 
-    print("on to classification now")
+    # print("on to classification now")
     for file in devFiles:
         perclassify_obj.classify(file, outputHandle)
 
