@@ -14,7 +14,7 @@ class Learn(object):
         self.allFiles = []  # list of tuples containing spam and ham info
         self.allFiles = []  # list of tuples containing spam and ham info
         self.weightDict = defaultdict(lambda:0) #contains the weight of every dict with default wt as zero
-        self.maxIter = 30   #maximum number of iterations on training for weights
+        self.maxIter = 20   #maximum number of iterations on training for weights
         self.bias = 0       #bias of the training data
 
     def getData(self):
