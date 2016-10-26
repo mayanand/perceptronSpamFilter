@@ -108,6 +108,24 @@ if __name__ == "__main__":
 
     outputHandle.close()
 
+    spamPrecision = perclassify_obj.spamTP / (perclassify_obj.spamTP + perclassify_obj.spamFP)
+    print("spam precision: ", spamPrecision)
+
+    spamRecall = perclassify_obj.spamTP / (perclassify_obj.spamTP + perclassify_obj.spamFN)
+    print("spam recall: ", spamRecall)
+
+    spamF1Score = 2 * ((spamPrecision * spamRecall) / (spamPrecision + spamRecall))
+    print("spam F1 score: ", spamF1Score)
+
+    hamPrecision = perclassify_obj.hamTP / (perclassify_obj.hamTP + perclassify_obj.hamFP)
+    print("ham precision: ", hamPrecision)
+
+    hamRecall = perclassify_obj.hamTP / (perclassify_obj.hamTP + perclassify_obj.hamFN)
+    print("ham recall: ", hamRecall)
+
+    hamF1Score = 2 * ((hamPrecision * hamRecall) / (hamPrecision + hamRecall))
+    print("ham F1 score: ", hamF1Score)
+
 
     # print("Exiting classification")
     exit(0)

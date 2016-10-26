@@ -12,6 +12,7 @@ class Learn(object):
         self.spamFiles = [] #list of all spam files in training data
         self.hamFiles = []  #list of all ham files in training data
         self.allFiles = []  # list of tuples containing spam and ham info
+        self.allFiles = []  # list of tuples containing spam and ham info
         self.weightDict = defaultdict(lambda:0) #contains the weight of every dict with default wt as zero
         self.maxIter = 30   #maximum number of iterations on training for weights
         self.bias = 0       #bias of the training data
@@ -72,7 +73,7 @@ class Learn(object):
         result = {'bias': self.bias, 'weight': dict(self.weightDict)}
 
         try:
-            with open('per_model.txt', 'w') as f:
+            with open('per_model.txt', 'w', encoding="latin1") as f:
                 f.write(str(result))
         except:
             print("something went wrong with FIL IO")

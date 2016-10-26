@@ -85,7 +85,7 @@ class AvgLearn(object):
         result = {'bias': self.avgBias, 'weight': dict(self.avgWtDict)}
 
         try:
-            with open('per_model.txt', 'w') as f:
+            with open('per_model.txt', 'w', encoding="latin1") as f:
                 f.write(str(result))
         except:
             print("something went wrong with FIL IO")
